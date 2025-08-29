@@ -7,13 +7,18 @@ import buildingSlice from './slices/buildingSlice';
 import floorApis from './apis/floorApis';
 import subscriptionsApis from './apis/subscriptionApis';
 import dashboardApis from './apis/dashboardApis';
+import reportsApi from './apis/reportsApi';
+import alertApi from './apis/alertApi';
+import ruleEngineApi from './apis/ruleEngineApi';
+import notificationApis from './apis/notificationApis';
+import notificationSlice from './slices/notificationSlice';
 
 const store = configureStore({
   reducer: {
     // slices
     [authSlice.name]: authSlice.reducer,
     [buildingSlice.name]: buildingSlice.reducer,
-
+    [notificationSlice.name]: notificationSlice.reducer,
     // apis
     [authApis.reducerPath]: authApis.reducer,
     [buildingApis.reducerPath]: buildingApis.reducer,
@@ -21,6 +26,10 @@ const store = configureStore({
     [sensorApis.reducerPath]: sensorApis.reducer,
     [subscriptionsApis.reducerPath]: subscriptionsApis.reducer,
     [dashboardApis.reducerPath]: dashboardApis.reducer,
+    [reportsApi.reducerPath]: reportsApi.reducer,
+    [alertApi.reducerPath]: alertApi.reducer,
+    [ruleEngineApi.reducerPath]: ruleEngineApi.reducer,
+    [notificationApis.reducerPath]: notificationApis.reducer,
   },
   middleware: (getDefaultMiddleware) => {
     return getDefaultMiddleware({ serializableCheck: false })
@@ -29,7 +38,11 @@ const store = configureStore({
       .concat(buildingApis.middleware)
       .concat(floorApis.middleware)
       .concat(subscriptionsApis.middleware)
-      .concat(dashboardApis.middleware);
+      .concat(dashboardApis.middleware)
+      .concat(reportsApi.middleware)
+      .concat(alertApi.middleware)
+      .concat(ruleEngineApi.middleware)
+      .concat(notificationApis.middleware);
   },
 });
 
