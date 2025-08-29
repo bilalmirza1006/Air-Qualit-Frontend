@@ -1,41 +1,45 @@
-import "leaflet-draw/dist/leaflet.draw.css";
-import "leaflet/dist/leaflet.css";
-import { lazy, Suspense, useEffect, useState } from "react";
-import "react-confirm-alert/src/react-confirm-alert.css";
-import { useDispatch, useSelector } from "react-redux";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import "slick-carousel/slick/slick-theme.css";
-import "slick-carousel/slick/slick.css";
-import EditBuilding from "./components/buildings/EditBuilding";
-import BuildingView from "./components/buildingsData/buildingView/BuildingView";
-import FloorView from "./components/buildingsData/floorView/FloorView";
-import ProtectedRoute from "./components/ProtectedRoutes";
-import ChangePassword from "./components/settings/ChangePassword";
-import Configuration from "./components/settings/Configuration";
-import SubscriptionHistory from "./components/settings/SubscriptionHistory";
-import AuthBg from "./components/shared/large/AuthBg";
-import Loader from "./components/shared/small/Loader";
-import ScrollToTop from "./components/shared/small/ScrollToTop";
-import AlertType from "./pages/dashboard/alerts";
-import Profile from "./pages/dashboard/profile/Profile";
-import Subscription from "./pages/dashboard/subscription/Subscription";
-import { useGetMyProfileFirstTimeMutation } from "./redux/apis/authApis";
-import { userExist, userNotExist } from "./redux/slices/authSlice";
-import FloorEdit from "./components/buildingsData/floorEdit/FloorEdit";
-import AddFloor from "./components/buildingsData/addFloor/AddFloor";
+import 'leaflet-draw/dist/leaflet.draw.css';
+import 'leaflet/dist/leaflet.css';
+import { lazy, Suspense, useEffect, useState } from 'react';
+import 'react-confirm-alert/src/react-confirm-alert.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import 'slick-carousel/slick/slick-theme.css';
+import 'slick-carousel/slick/slick.css';
+import EditBuilding from './components/buildings/EditBuilding';
+import BuildingView from './components/buildingsData/buildingView/BuildingView';
+import FloorView from './components/buildingsData/floorView/FloorView';
+import ProtectedRoute from './components/ProtectedRoutes';
+import ChangePassword from './components/settings/ChangePassword';
+import Configuration from './components/settings/Configuration';
+import SubscriptionHistory from './components/settings/SubscriptionHistory';
+import AuthBg from './components/shared/large/AuthBg';
+import Loader from './components/shared/small/Loader';
+import ScrollToTop from './components/shared/small/ScrollToTop';
+import AlertType from './pages/dashboard/alerts';
+import Profile from './pages/dashboard/profile/Profile';
+import Subscription from './pages/dashboard/subscription/Subscription';
+import { useGetMyProfileFirstTimeMutation } from './redux/apis/authApis';
+import { userExist, userNotExist } from './redux/slices/authSlice';
+import FloorEdit from './components/buildingsData/floorEdit/FloorEdit';
+import AddFloor from './components/buildingsData/addFloor/AddFloor';
+import Notifications from './pages/dashboard/notifications/Notifications';
+import { socket } from './sockets/socket';
+import { toast } from 'react-toastify';
+import { setCount } from './redux/slices/notificationSlice';
 
-const Dashboard = lazy(() => import("./pages/dashboard/index"));
-const Buildings = lazy(() => import("./pages/dashboard/buildings/Buildings"));
-const Devices = lazy(() => import("./pages/dashboard/devices/Devices"));
-const Reports = lazy(() => import("./pages/dashboard/reports/Reports"));
-const Sensors = lazy(() => import("./pages/dashboard/sensors/Sensors"));
-const SensorDetail = lazy(() => import("./pages/dashboard/sensors/SensorDetail"));
-const Settings = lazy(() => import("./pages/dashboard/settings/Settings"));
-const Login = lazy(() => import("./pages/auth/Login"));
-const ForgetPassword = lazy(() => import("./pages/auth/ForgetPassword"));
-const SignUp = lazy(() => import("./pages/auth/SignUp"));
-const ResetPassword = lazy(() => import("./pages/auth/ResetPassword"));
-const BuildingStepper = lazy(() => import("./components/buildings/BuildingStepper"));
+const Dashboard = lazy(() => import('./pages/dashboard/index'));
+const Buildings = lazy(() => import('./pages/dashboard/buildings/Buildings'));
+const Devices = lazy(() => import('./pages/dashboard/devices/Devices'));
+const Reports = lazy(() => import('./pages/dashboard/reports/Reports'));
+const Sensors = lazy(() => import('./pages/dashboard/sensors/Sensors'));
+const SensorDetail = lazy(() => import('./pages/dashboard/sensors/SensorDetail'));
+const Settings = lazy(() => import('./pages/dashboard/settings/Settings'));
+const Login = lazy(() => import('./pages/auth/Login'));
+const ForgetPassword = lazy(() => import('./pages/auth/ForgetPassword'));
+const SignUp = lazy(() => import('./pages/auth/SignUp'));
+const ResetPassword = lazy(() => import('./pages/auth/ResetPassword'));
+const BuildingStepper = lazy(() => import('./components/buildings/BuildingStepper'));
 
 function App() {
   const dispatch = useDispatch();
@@ -53,6 +57,145 @@ function App() {
       })
       .finally(() => setLoading(false));
   }, [getUserProfile, dispatch]);
+
+  // ✅ Listen for socket notifications once
+  // useEffect(() => {
+  //   const handleNotification = (notification) => {
+  //     console.log('🔔 [Frontend] New notification received:', notification);
+
+  //     toast.info(
+  //       notification.message
+  //       //   , {
+  //       //   position: 'top-right',
+  //       //   autoClose: 5000,
+  //       //   hideProgressBar: false,
+  //       //   closeOnClick: true,
+  //       //   pauseOnHover: true,
+  //       //   draggable: true,
+  //       //   theme: 'colored',
+  //       // }
+  //     );
+  //   };
+
+  //   socket.on('new-notification', handleNotification);
+
+  //   return () => {
+  //     socket.off('new-notification', handleNotification);
+  //   };
+  // }, []);
+  // useEffect(() => {
+  //   if (user?._id) {
+  //     // ✅ Only connect if logged in
+  //     socket.auth = { userId: user._id }; // optional: pass userId in auth
+  //     socket.connect();
+
+  //     socket.on('connect', () => {
+  //       console.log('✅ [Frontend] Connected:', socket.id);
+  //       socket.emit('register', user._id); // tell backend who you are
+  //     });
+  //   } else {
+  //     // ✅ Disconnect when user logs out
+  //     if (socket.connected) {
+  //       socket.disconnect();
+  //       console.log('❌ [Frontend] Socket disconnected on logout');
+  //     }
+  //   }
+
+  //   // Cleanup listeners on dependency change
+  //   return () => {
+  //     socket.off('connect');
+  //   };
+  // }, [user]);
+
+  // useEffect(() => {
+  //   const handleNotification = (notification) => {
+  //     console.log('🔔 [Frontend] New notification received:', notification);
+
+  //     if (notification.severity === 'high') {
+  //       toast.error(
+  //         notification.message
+
+  //       );
+  //     } else if (notification.severity === 'low') {
+  //       toast.warning(
+  //         notification.message
+
+  //       );
+  //     } else {
+  //       toast.info(
+  //         notification.message
+
+  //       );
+  //     }
+  //   };
+
+  //   socket.on('new-notification', handleNotification);
+
+  //   return () => {
+  //     socket.off('new-notification', handleNotification);
+  //   };
+  // }, []);
+  useEffect(() => {
+    if (!user?._id) {
+      // Disconnect if logged out
+      if (socket.connected) {
+        socket.disconnect();
+        console.log('❌ [Frontend] Socket disconnected on logout');
+      }
+      return; // exit early
+    }
+
+    // Attach userId and connect
+    if (!socket.connected) {
+      socket.auth = { userId: user._id };
+      socket.connect();
+    }
+
+    // ✅ Handlers
+    const handleConnect = () => {
+      console.log('✅ [Frontend] Connected:', socket.id);
+      socket.emit('register', user._id);
+    };
+
+    const handleNotification = (notification) => {
+      console.log('🔔 [Frontend] New notification:', notification);
+
+      switch (notification.severity) {
+        case 'high':
+          toast.error(notification.message);
+          break;
+        case 'low':
+          toast.warning(notification.message);
+          break;
+        default:
+          toast.info(notification.message);
+      }
+    };
+    const handleNotificationCount = (count) => {
+      console.log('🔢 [Frontend] Notification count:', count);
+      dispatch(setCount(count));
+      // optional: store it in state so you can show a badge in UI
+      // setNotificationCount(count);
+    };
+    // Attach listeners once
+    socket.on('connect', handleConnect);
+    socket.on('new-notification', handleNotification);
+    socket.on('notification-count', handleNotificationCount);
+
+    // ✅ Cleanup when user changes or component unmounts
+    return () => {
+      socket.off('connect', handleConnect);
+      socket.off('new-notification', handleNotification);
+      socket.off('notification-count', handleNotificationCount);
+    };
+  }, [user]);
+
+  // socket.on('new-notification', (notification) => {
+  //   console.log('🔔 [Frontend] New notification received:', notification);
+  //   toast.info();
+  //   // you can show toast here
+  //   // toast.info(notification.message);
+  // });
 
   return loading ? (
     <Loader />
@@ -101,6 +244,7 @@ function App() {
             <Route path="configuration" element={<Configuration />} />
             <Route path="change-password" element={<ChangePassword />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="notifications" element={<Notifications />} />
           </Route>
         </Routes>
       </BrowserRouter>
